@@ -28,9 +28,9 @@ def sigmoid_gradient(x):
 
 def train(inputs, answer):
     weights = {}
-    layers = range(len(structure) + 1)
+    layers = len(structure) + 1
     
-    for w in layers:
+    for w in range(layers):
         if w == 0:
             weights[w] = np.random.random((inputs.shape[1], structure[w]))
         elif w == len(structure + 1):
@@ -48,13 +48,13 @@ def train(inputs, answer):
             out = {}
         
             inn = inputs[i]
-            for w in layers:
+            for w in range(layers):
                 net = np.dot(inn, weights[w])
                 s[w] = ALPHA*net
                 out[w] = sigmoid(s[w])
                 inn = out[w]
             
-            for w in reversed(layers):
+            for w in reversed(range(layers)):
                 if w == len(structure + 1):
                     error[w] = (answer[i] - out[w]) * sigmoid_gradient(s[w])
                 else:
@@ -63,7 +63,7 @@ def train(inputs, answer):
                 prev[w] = 0
             
             
-            for w in layers:
+            for w in range(layers):
                 if w == 0:
                     delta[w] = ETA * np.dot(error[w][:,None], inputs[i][:,None].T) + BETA * prev[w]
                 else:
