@@ -34,7 +34,7 @@ def train(inputs, answer):
         if w == 0:
             weights[w] = np.random.random((inputs.shape[1], structure[w]))
         elif w == len(structure + 1):
-            weights[w] = np.random.random((structure[w - 1], answer.shape[1]))
+            weights[w] = np.random.random((structure[w - 1], 1))
         else:
             weights[w] = np.random.random((structure[w - 1], structure[w]))
     
@@ -84,8 +84,8 @@ def test(inputs, answer, weights):
             out = sigmoid(s)
             inn = out
             
-        outcome = np.argmax(out)    
-        ans = np.argmax(answer[i])
+        outcome = int(out + 0.5)
+        ans = int(answer[i])
 
         if(outcome != ans):
             error += 1
@@ -93,8 +93,8 @@ def test(inputs, answer, weights):
     return error
     
             
-inputs = np.genfromtxt('bezdekIris.data', delimiter=',', usecols=(0, 1, 2, 3))
-names = np.genfromtxt('bezdekIris.data', delimiter=',', dtype="string", usecols=(4))
+inputs = np.genfromtxt('models_norm.csv', delimiter=';', dtype="float", skip_header=1, usecols=(2, 3, 4, 5, 6))
+names = np.genfromtxt('models_norm.csv', delimiter=';', skip_header=1, usecols=(7))
 inputs = np.append(inputs, np.ones((inputs.shape[0], 1)), axis=1)
 testset = np.hstack((inputs, np.atleast_2d(names).T))
 np.random.shuffle(testset)
@@ -103,29 +103,20 @@ testset = np.split(testset, 5)
 def crossvalidate():
     sum = 0
     for i in range(5):
-        inputs = testset[i][:, :5]
+        inputs = testset[i][:, :6]
         inputs = inputs.astype(np.float32)
-        answer = testset[i][:, 5]
-        answer = code_answer(answer)
+        answer = testset[i][:, 6]
         weights = train(inputs, answer)
         error = test(inputs, answer, weights)
         f.write("Number of misclassifications in fold " + str(i) + ": " + str(error) + "\n")
         sum += error
     
-    f.write("Average: " + str(sum/5.0) + "\n")
+    f.write("Average: missclassified " + str(sum/5.0) + " of " + str(testset[0].shape[0]) + " items\n")
 
 f = open('output.txt', 'w')
 
-f.write("Without hidden layer (4 - 3): \n")
-structure = np.array([4])
+f.write("Structure of NN (5 - 3 - 1): \n")
+structure = np.array([5, 3])
 crossvalidate()   
-
-f.write("\nWith hidden layer(4 - 5 - 3): \n")
-structure = np.array([4, 5])
-crossvalidate()
-
-f.write("\nWith hidden layer(6 - 5 - 3): \n")
-structure = np.array([6, 5])
-crossvalidate() 
     
 f.close

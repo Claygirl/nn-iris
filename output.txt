@@ -1,0 +1,7 @@
+Structure of NN (5 - 3 - 1): 
+Number of misclassifications in fold 0: 20
+Number of misclassifications in fold 1: 25
+Number of misclassifications in fold 2: 24
+Number of misclassifications in fold 3: 25
+Number of misclassifications in fold 4: 17
+Average: missclassified 22.2 of 52 items
