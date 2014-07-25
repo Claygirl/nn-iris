@@ -17,28 +17,33 @@ def code_answer(names):
             ans[i][1] = 1
         elif names[i] == "Iris-virginica":
             ans[i][0] = 1
-            
+
     return ans
+
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-1*x))
 
+
 def sigmoid_gradient(x):
     return sigmoid(x) * (1 - sigmoid(x))
 
-def train(inputs, answer):
-    weights = {}
+
+def train(inputs, answer, structure, weights):
     layers = len(structure) + 1
+
+    if weights is None:
+        weights = {}
+
+        for w in range(layers):
+            if w == 0:
+                weights[w] = np.random.random((inputs.shape[1], structure[w]))
+            elif w == len(structure + 1):
+                weights[w] = np.random.random((structure[w - 1], answer.shape[1]))
+            else:
+                weights[w] = np.random.random((structure[w - 1], structure[w]))
     
-    for w in range(layers):
-        if w == 0:
-            weights[w] = np.random.random((inputs.shape[1], structure[w]))
-        elif w == len(structure + 1):
-            weights[w] = np.random.random((structure[w - 1], answer.shape[1]))
-        else:
-            weights[w] = np.random.random((structure[w - 1], structure[w]))
-    
-    for m in range(1000):
+    for m in range(100):
         prev = {}
         
         for i in range(inputs.shape[0]):
@@ -87,7 +92,7 @@ def test(inputs, answer, weights):
         outcome = np.argmax(out)    
         ans = np.argmax(answer[i])
 
-        if(outcome != ans):
+        if outcome != ans:
             error += 1
 
     return error
@@ -100,32 +105,44 @@ testset = np.hstack((inputs, np.atleast_2d(names).T))
 np.random.shuffle(testset)
 testset = np.split(testset, 5)
 
-def crossvalidate():
+def crossvalidate(structure):
     sum = 0
     for i in range(5):
-        inputs = testset[i][:, :5]
-        inputs = inputs.astype(np.float32)
-        answer = testset[i][:, 5]
-        answer = code_answer(answer)
-        weights = train(inputs, answer)
-        error = test(inputs, answer, weights)
+        weights = None
+        test_inputs = testset[i][:, :5]
+        test_inputs = test_inputs.astype(np.float32)
+        test_answer = testset[i][:, 5]
+        test_answer = code_answer(test_answer)
+
+        for j in range(5):
+            if i == j:
+                continue
+            train_inputs = testset[j][:, :5]
+            train_inputs = train_inputs.astype(np.float32)
+            train_answer = testset[j][:, 5]
+            train_answer = code_answer(train_answer)
+            weights = train(train_inputs, train_answer, structure, weights)
+        
+        error = test(test_inputs, test_answer, weights)
         f.write("Number of misclassifications in fold " + str(i) + ": " + str(error) + "\n")
         sum += error
-    
+        print weights
+
     f.write("Average: " + str(sum/5.0) + "\n")
+    print "Average: " + str(sum/5.0) + "\n"
 
 f = open('output.txt', 'w')
 
 f.write("Without hidden layer (4 - 3): \n")
 structure = np.array([4])
-crossvalidate()   
+crossvalidate(structure)
 
 f.write("\nWith hidden layer(4 - 5 - 3): \n")
 structure = np.array([4, 5])
-crossvalidate()
+crossvalidate(structure)
 
 f.write("\nWith hidden layer(6 - 5 - 3): \n")
 structure = np.array([6, 5])
-crossvalidate() 
-    
+crossvalidate(structure)
+
 f.close

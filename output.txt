@@ -1,0 +1,23 @@
+Without hidden layer (4 - 3): 
+Number of misclassifications in fold 0: 1
+Number of misclassifications in fold 1: 10
+Number of misclassifications in fold 2: 10
+Number of misclassifications in fold 3: 1
+Number of misclassifications in fold 4: 0
+Average: 4.4
+
+With hidden layer(4 - 5 - 3): 
+Number of misclassifications in fold 0: 10
+Number of misclassifications in fold 1: 11
+Number of misclassifications in fold 2: 18
+Number of misclassifications in fold 3: 23
+Number of misclassifications in fold 4: 22
+Average: 16.8
+
+With hidden layer(6 - 5 - 3): 
+Number of misclassifications in fold 0: 10
+Number of misclassifications in fold 1: 18
+Number of misclassifications in fold 2: 18
+Number of misclassifications in fold 3: 23
+Number of misclassifications in fold 4: 22
+Average: 18.2
